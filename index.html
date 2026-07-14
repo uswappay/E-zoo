@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Автотека - Проверка авто</title>
+    <!-- Подключаем Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #ffffff; color: #000; height: 100vh; overflow-y: auto; }
+        
+        /* Telegram Safe Area */
+        .app-container { padding: 16px; padding-top: env(safe-area-inset-top); }
+
+        /* Верхний баннер */
+        .top-banner {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+        }
+        .banner-left { display: flex; align-items: center; gap: 10px; }
+        .banner-left svg { width: 28px; height: 28px; }
+        .banner-text strong { font-size: 14px; font-weight: 600; }
+        .banner-text span { font-size: 12px; color: #666; }
+        .banner-btn {
+            background: #fff; border: 1px solid #d0d0d0; padding: 6px 14px;
+            border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+
+        /* Навигация */
+        .nav-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+        .nav-left a { color: #4a90e2; font-size: 14px; text-decoration: none; font-weight: 500; }
+        .nav-right .login-btn {
+            background: #e0f2fe; color: #0284c7; padding: 8px 16px;
+            border-radius: 20px; font-size: 14px; font-weight: 600; border: none; cursor: pointer;
+        }
+
+        /* Логотип */
+        .logo-section { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+        .logo-wrapper { display: flex; align-items: center; gap: 10px; }
+        .logo-icon svg { width: 32px; height: 32px; }
+        .logo-text { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-sub { font-size: 12px; color: #666; margin-top: -4px; }
+
+        /* Герой */
+        .hero { text-align: center; padding: 20px 0; }
+        .hero h1 { font-size: 30px; font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
+        .hero p { font-size: 14px; color: #555; line-height: 1.5; max-width: 320px; margin: 0 auto 20px; }
+
+        /* Поле ввода */
+        .search-box {
+            background: #1a1a1a; border-radius: 16px; padding: 16px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .search-input-row {
+            display: flex; align-items: center; background: #fff;
+            border-radius: 8px; padding: 0 12px; height: 48px;
+        }
+        .search-input-row input {
+            flex: 1; border: none; outline: none; font-size: 16px; background: transparent; color: #000;
+        }
+        .search-input-row input::placeholder { color: #888; }
+        .search-footer {
+            display: flex; align-items: center; gap: 8px; padding-top: 4px;
+        }
+        .search-footer span { color: #fff; font-size: 13px; font-weight: 500; }
+        .search-footer .highlight { color: #8b5cf6; font-weight: 600; }
+
+        /* Картинка машины (реалистичная) */
+        .car-image-section {
+            display: flex; justify-content: center; padding: 20px 0;
+        }
+        .car-image-container {
+            width: 100%; max-width: 380px; height: 200px;
+            background: #f8f9fa; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+
+        /* О проекте */
+        .about-section {
+            background: #f7f7f7; padding: 20px 16px 40px; border-radius: 20px 20px 0 0;
+            margin-top: 10px;
+        }
+        .about-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+        .about-text { font-size: 14px; color: #444; line-height: 1.6; margin-bottom: 16px; }
+        .avito-badge { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .avito-text { font-size: 14px; font-weight: 500; }
+        .avito-text span { color: #4a90e2; }
+        .big-number { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+        .big-number-desc { font-size: 14px; color: #444; }
+
+        /* Адаптив для ПК */
+        @media (min-width: 768px) {
+            body { max-width: 480px; margin: 0 auto; border-left: 1px solid #eee; border-right: 1px solid #eee; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Баннер -->
+        <div class="top-banner">
+            <div class="banner-left">
+                <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#2e7d32"/><text x="12" y="17" text-anchor="middle" fill="white" font-size="14" font-weight="bold">A</text></svg>
+                <div class="banner-text"><strong>Автотека</strong><span>Доступно в Google Play</span></div>
+            </div>
+            <button class="banner-btn" onclick="window.Telegram.WebApp.close()">Скачать</button>
+        </div>
+
+        <!-- Нав -->
+        <div class="nav-header">
+            <div class="nav-left"><a href="#">Помощь</a></div>
+            <div class="nav-right"><button class="login-btn" onclick="window.Telegram.WebApp.MainButton.setText('Вход выполнен').show()">Войти</button></div>
+        </div>
+
+        <!-- Лого -->
+        <div class="logo-section">
+            <div class="logo-wrapper">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#2e7d32"/><text x="12" y="17" text-anchor="middle" fill="white" font-size="14" font-weight="bold">A</text></svg>
+                </div>
+                <div><div class="logo-text">Автотека</div><div class="logo-sub">проект Avito</div></div>
+            </div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+
+        <!-- Герой -->
+        <div class="hero">
+            <h1>Бесплатная<br>проверка пробега</h1>
+            <p>Ищем скрутки по закрытым базам и через партнёров — это 4 000+ дилерских центров и СТО.</p>
+        </div>
+
+        <!-- Поиск -->
+        <div class="search-box">
+            <div class="search-input-row">
+                <input type="text" id="vinInput" placeholder="Введите VIN, госномер, номер кузова">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="search-footer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#8b5cf6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span><span class="highlight">3 бесплатные проверки</span> после регистрации</span>
+            </div>
+        </div>
+
+        <!-- Машина (реалистичный SVG) -->
+        <div class="car-image-section">
+            <div class="car-image-container">
+                <svg width="320" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Тень -->
+                    <ellipse cx="160" cy="145" rx="140" ry="15" fill="#000000" opacity="0.08"/>
+                    <!-- Кузов -->
+                    <path d="M30 110 L40 80 L70 50 L250 50 L280 80 L290 110 Z" fill="#d0d8e0" stroke="#a0a8b0" stroke-width="2"/>
+                    <!-- Капот и крыша -->
+                    <path d="M70 50 L80 35 L240 35 L250 50" fill="#c0c8d0" stroke="#a0a8b0" stroke-width="2"/>
+                    <!-- Стекла -->
+                    <path d="M80 35 L100 55 L220 55 L240 35" fill="#82c4e6" stroke="#5a8aaa" stroke-width="1.5"/>
+                    <!-- Фары -->
+                    <ellipse cx="45" cy="85" rx="12" ry="8" fill="#fff5b0" stroke="#d0a020" stroke-width="2"/>
+                    <ellipse cx="275" cy="85" rx="12" ry="8" fill="#fff5b0" stroke="#d0a020" stroke-width="2"/>
+                    <!-- Решетка -->
+                    <rect x="130" y="70" width="60" height="15" rx="4" fill="#222" stroke="#444" stroke-width="1"/>
+                    <!-- Колеса -->
+                    <circle cx="75" cy="110" r="22" fill="#222" stroke="#444" stroke-width="4"/>
+                    <circle cx="75" cy="110" r="12" fill="#ccc" stroke="#999" stroke-width="2"/>
+                    <circle cx="245" cy="110" r="22" fill="#222" stroke="#444" stroke-width="4"/>
+                    <circle cx="245" cy="110" r="12" fill="#ccc" stroke="#999" stroke-width="2"/>
+                    <!-- Блеск -->
+                    <path d="M70 50 L80 35 L120 35 L100 50 Z" fill="#ffffff" opacity="0.15"/>
+                </svg>
+                <!-- Индикатор проверки -->
+                <div style="position:absolute; top:20px; right:20px; background:#4ade80; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(74,222,128,0.4);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- О проекте -->
+        <div class="about-section">
+            <div class="about-title">О проекте</div>
+            <div class="about-text">Проект Автотека призван объединить и предоставить имеющиеся данные об истории автомобилей для снижения рисков покупателей и формирования цивилизованного рынка авто с пробегом.</div>
+            <div class="avito-badge">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#00cc66"><circle cx="12" cy="12" r="12"/><text x="12" y="17" text-anchor="middle" fill="white" font-size="14" font-weight="bold">A</text></svg>
+                <div class="avito-text">Проект создан при поддержке <span>Авито</span> — сайта объявлений №1 в России*</div>
+            </div>
+            <div class="big-number">Более 22 млн</div>
+            <div class="big-number-desc">VIN с уникальными данными доступны для пользователей**</div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const telegram = window.Telegram.WebApp;
+        telegram.expand(); // Растягиваем на весь экран
+        telegram.ready();
+
+        // Логика взаимодействия с пользователем
+        const vinInput = document.getElementById('vinInput');
+        
+        vinInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const vin = this.value.trim();
+                if (vin.length === 17) {
+                    // Включаем кнопку "Отправить" в Telegram
+                    telegram.MainButton.setText('Проверить VIN');
+                    telegram.MainButton.show();
+                    telegram.MainButton.onClick(() => {
+                        // Имитация отправки данных в группу (через бэкенд)
+                        console.log(`[TG] VIN: ${vin}`);
+                        alert('VIN принят. Имитация поиска...');
+                        telegram.MainButton.hide();
+                        // Здесь можно сделать fetch запрос к твоему бэкенду
+                        // fetch('https://your-backend.com/api/vin', { method: 'POST', body: JSON.stringify({ vin }) })
+                    });
+                } else {
+                    telegram.showAlert('Введите корректный VIN (17 символов)');
+                }
+            }
+        });
+
+        // Если пользователь нажимает "Войти"
+        document.querySelector('.login-btn').addEventListener('click', () => {
+            telegram.showPopup({
+                title: 'Вход в Автотеку',
+                message: 'Введите номер телефона для входа',
+                buttons: [
+                    { text: 'Отмена', type: 'cancel' },
+                    { text: 'Войти', type: 'default' }
+                ]
+            });
+        });
+    </script>
+</body>
+</html>
